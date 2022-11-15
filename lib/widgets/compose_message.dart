@@ -84,8 +84,13 @@ class _ComposeMessageState extends State<ComposeMessage> {
             child: InkWell(
               onTap: () {
                 String text = textfieldController.text;
-                widget.onMesssageSend.call(text);
-                textfieldController.clear();
+                if (text.isNotEmpty) {
+                  widget.onMesssageSend.call(text);
+                  textfieldController.clear();
+                  setState(() {
+                    isUserTyping = false;
+                  });
+                }
               },
               child: const Icon(
                 Icons.send_rounded,

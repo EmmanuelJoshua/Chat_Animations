@@ -1,10 +1,11 @@
 import 'package:chat_animation/utils/assets.dart';
 import 'package:chat_animation/utils/theme.dart';
 import 'package:chat_animation/widgets/compose_message.dart';
+import 'package:chat_animation/widgets/message_list.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-import '../widgets/chat_bubble.dart';
+import '../models/chat_model.dart';
 
 class ChatUI extends StatefulWidget {
   const ChatUI({Key? key}) : super(key: key);
@@ -15,6 +16,27 @@ class ChatUI extends StatefulWidget {
 
 class _ChatUIState extends State<ChatUI> {
   String? _selectedText;
+  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+  List<ChatModel> chats = [
+    ChatModel(
+      text: 'How\'s your day going?',
+      isSender: false,
+    ),
+    ChatModel(
+      text: 'Trust you\'re good?',
+      isSender: false,
+    ),
+    ChatModel(
+      text: 'I\'m fine',
+      isSender: true,
+    ),
+    ChatModel(
+      text: 'How are you?',
+      isSender: false,
+    ),
+  ];
+  ScrollController scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,64 +48,19 @@ class _ChatUIState extends State<ChatUI> {
           width: 45,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(top: 15, bottom: 30),
-        physics: const BouncingScrollPhysics(),
+      body: Column(
         children: [
-          ChatBubble(
-            text: 'How was the concert?',
-            isSender: false,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
-          ),
-          ChatBubble(
-            text:
-                'Awesome! Next time you gotta come as well shjsjkskjs skjskjkjs!',
-            isSender: true,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
-          ),
-          ChatBubble(
-            text: 'Ok, when is the next date?',
-            isSender: false,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
-          ),
-          ChatBubble(
-            text: 'Ok, when is the next date?',
-            isSender: false,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
-          ),
-          ChatBubble(
-            text: 'Ok, when is the next date?',
-            isSender: false,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
-          ),
-          ChatBubble(
-            text: 'Ok, when is the next date?',
-            isSender: false,
-            onSwipe: (key, {String? text}) {
-              setState(() {
-                _selectedText = text;
-              });
-            },
+          Expanded(
+            child: MessageList(
+              listKey: listKey,
+              chats: chats,
+              scrollController: scrollController,
+              onMessageSwipe: (p0, {String? text}) {
+                setState(() {
+                  _selectedText = text;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -139,7 +116,6 @@ class _ChatUIState extends State<ChatUI> {
                 ],
               )
             ],
-            // const Spacer(),
             const Divider(
               color: kBrightGray,
               thickness: 1.3,
@@ -147,7 +123,16 @@ class _ChatUIState extends State<ChatUI> {
             const Gap(3),
             ComposeMessage(
               onMesssageSend: (text) {
+                ChatModel chatModel = ChatModel(
+                  text: text,
+                  isSender: true,
+                  repliedText: _selectedText,
+                );
+
                 setState(() {
+                  listKey.currentState!.insertItem(0,
+                      duration: const Duration(milliseconds: 400));
+                  chats.insert(0, chatModel);
                   _selectedText = null;
                 });
               },

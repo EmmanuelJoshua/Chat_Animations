@@ -1,6 +1,8 @@
+import 'package:chat_animation/models/chat_model.dart';
 import 'package:chat_animation/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:gap/gap.dart';
 import 'dart:math' as math;
 
 import '../utils/constrained_physics.dart';
@@ -10,12 +12,10 @@ class ChatBubble extends StatefulWidget {
 
   const ChatBubble({
     Key? key,
-    required this.text,
-    required this.isSender,
+    required this.chat,
     this.onSwipe,
   }) : super(key: key);
-  final String text;
-  final bool isSender;
+  final ChatModel chat;
   final Function(Key, {String text})? onSwipe;
 
   @override
@@ -52,21 +52,21 @@ class _ChatBubbleState extends State<ChatBubble> {
             child: SizedBox(
               width: w + 0.1,
               child: Row(
-                mainAxisAlignment: widget.isSender
+                mainAxisAlignment: widget.chat.isSender
                     ? MainAxisAlignment.end
                     : MainAxisAlignment.start,
                 children: [
                   Flexible(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        widget.isSender ? 100.0 : 16.0,
+                        widget.chat.isSender ? 100.0 : 16.0,
                         8,
-                        widget.isSender ? 16.0 : 100.0,
+                        widget.chat.isSender ? 16.0 : 100.0,
                         8,
                       ),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          borderRadius: widget.isSender
+                          borderRadius: widget.chat.isSender
                               ? const BorderRadius.only(
                                   topLeft: Radius.circular(32),
                                   topRight: Radius.circular(32),
@@ -79,20 +79,43 @@ class _ChatBubbleState extends State<ChatBubble> {
                                   bottomLeft: Radius.circular(4),
                                   bottomRight: Radius.circular(32),
                                 ),
-                          color: widget.isSender
+                          color: widget.chat.isSender
                               ? kMalachite.withOpacity(0.7)
                               : kBrightGray,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 16),
-                          child: Text(
-                            widget.text,
-                            style: TextStyle(
-                              color: widget.isSender
-                                  ? Colors.white
-                                  : black.withOpacity(0.7),
-                            ),
+                              horizontal: 16, vertical: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (widget.chat.repliedText != null) ...[
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: white.withOpacity(0.7),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  padding: const EdgeInsets.all(4),
+                                  child: Text(
+                                    widget.chat.repliedText!,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: black.withOpacity(0.55),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const Gap(5),
+                              Text(
+                                widget.chat.text,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: widget.chat.isSender
+                                      ? Colors.white
+                                      : black.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -123,7 +146,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 
       widget.onSwipe?.call(
         _key,
-        text: widget.text,
+        text: widget.chat.text,
       );
     }
 
